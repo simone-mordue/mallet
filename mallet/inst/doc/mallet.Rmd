@@ -12,9 +12,16 @@ vignette: >
 ## Installation
 
 The ```mallet``` R package is available on CRAN. To install, simply use ```install.packages()```
+```{r setup}
+require("knitr")
+## setting working directory
+opts_knit$set(root.dir = "~/OneDrive - Newcastle University/RMallet/mallet")
+```
+
 
 ```{r, eval=FALSE}
 install.packages("mallet")
+
 ```
 
 ## Usage

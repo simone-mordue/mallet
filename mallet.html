@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Simone Mordue" />
+
+<meta name="date" content="2021-03-01" />
+
+<title>SDG Classification</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">SDG Classification</h1>
+<h4 class="author">Simone Mordue</h4>
+<h4 class="date">2021-03-01</h4>
+
+
+
+<div id="installation" class="section level2">
+<h2>Installation</h2>
+<p>The <code>mallet</code> R package is available on CRAN. To install, simply use <code>install.packages()</code></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">install.packages</span>(<span class="st">&quot;mallet&quot;</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="kw">install.packages</span>(<span class="st">&quot;pdftools&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="kw">library</span>(pdftools)</span></code></pre></div>
+</div>
+<div id="usage" class="section level2">
+<h2>Usage</h2>
+<p>Depending of the size of your data it can be so that you need increase the Java virtual machine (JVM) heap memory to handle larger corpora. To do this you need specify how much memory you want to allocate to the JVM using the <code>Xmx</code> flag. Below is an example of allocating 4 gB to the JVM.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">options</span>(<span class="dt">java.parameters =</span> <span class="st">&quot;-Xmx4g&quot;</span>)</span></code></pre></div>
+<p>load packages.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">library</span>(mallet)</span></code></pre></div>
+<pre><code>## Loading required package: rJava</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="kw">library</span>(vroom)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="kw">library</span>(dplyr)</span></code></pre></div>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<p>We start out loading SDG reference texts one per SDG.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="kw">print</span>(<span class="kw">getwd</span>())</span></code></pre></div>
+<pre><code>## [1] &quot;/Users/simonemordue/OneDrive - Newcastle University/RMallet&quot;</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a>text&lt;-readtext<span class="op">::</span><span class="kw">readtext</span>(<span class="st">&quot;project_sim/SDG_texts/*.txt&quot;</span>)</span></code></pre></div>
+<p>Load stopword list</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a>stopwords_en &lt;-<span class="st"> </span><span class="kw">read.table</span>(<span class="st">&quot;project_sim/stopwords.txt&quot;</span>)</span></code></pre></div>
+<p>As a first step we need to create a LDA trainer object and supply the trainer with documents. We start out by creating a mallet instance list object.</p>
+<p>This function has a few extra options (whether to lowercase, how we define a token). See <code>?mallet.import</code> for details.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a>SDG.instances &lt;-<span class="st"> </span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a><span class="st">  </span><span class="kw">mallet.import</span>(<span class="dt">id.array =</span> <span class="kw">row.names</span>(text), </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>                <span class="dt">text.array =</span> text[[<span class="st">&quot;text&quot;</span>]], </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a>                <span class="dt">stoplist =</span> <span class="st">&quot;project_sim/stopwords.txt&quot;</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a>                <span class="dt">token.regexp =</span> <span class="st">&quot;</span><span class="ch">\\</span><span class="st">p{L}[</span><span class="ch">\\</span><span class="st">p{L}</span><span class="ch">\\</span><span class="st">p{P}]+</span><span class="ch">\\</span><span class="st">p{L}&quot;</span>)</span></code></pre></div>
+<p>To fit a model we first need to create a topic trainer object, we specifiy the number of topics to be the number of SDGS (17) plus a filter topic = 18 total.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a>topic.model &lt;-<span class="st"> </span><span class="kw">MalletLDA</span>(<span class="dt">num.topics=</span><span class="dv">18</span>, <span class="dt">alpha.sum =</span> <span class="dv">1</span>, <span class="dt">beta =</span> <span class="fl">0.1</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a>topic.model<span class="op">$</span>model<span class="op">$</span><span class="kw">setRandomSeed</span>(42L)</span></code></pre></div>
+<p>Load our documents into the model</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a>topic.model<span class="op">$</span><span class="kw">loadDocuments</span>(SDG.instances)</span></code></pre></div>
+<p>Get the vocabulary, and some statistics about word frequencies. These may be useful if we need to further curating the stopword list.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a>vocabulary &lt;-<span class="st"> </span>topic.model<span class="op">$</span><span class="kw">getVocabulary</span>()</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a><span class="kw">head</span>(vocabulary)</span></code></pre></div>
+<pre><code>## [1] &quot;extreme&quot; &quot;poverty&quot; &quot;world&quot;   &quot;track&quot;   &quot;achieve&quot; &quot;target&quot;</code></pre>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a>word.freqs &lt;-<span class="st"> </span><span class="kw">mallet.word.freqs</span>(topic.model)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true"></a><span class="kw">head</span>(word.freqs)</span></code></pre></div>
+<pre><code>##     words term.freq doc.freq
+## 1 extreme         0        0
+## 2 poverty       108       14
+## 3   world       162       17
+## 4   track         9        5
+## 5 achieve        73       17
+## 6  target        34       12</code></pre>
+<p>Optimize hyperparameters ( and ) every 20 iterations, after 50 burn-in iterations.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true"></a>topic.model<span class="op">$</span><span class="kw">setAlphaOptimization</span>(<span class="dv">20</span>, <span class="dv">500</span>)</span></code></pre></div>
+<p>Now train a model. Note that hyperparameter optimization is on, by default. We can specify the number of iterations. Here we’ll use a large-ish round number.</p>
+<p>We can also run through a few iterations where we pick the best topic for each token, rather than sampling from the posterior distribution.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a><span class="co">#topic.model$maximize(10)</span></span></code></pre></div>
+<p>Get the probability of topics in documents and the probability of words in topics. By default, these functions return raw word counts. Here we want probabilities, so we normalize, and add “smoothing” so that nothing has exactly 0 probability.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true"></a>doc.topics &lt;-<span class="st"> </span><span class="kw">mallet.doc.topics</span>(topic.model, <span class="dt">smoothed=</span><span class="ot">TRUE</span>, <span class="dt">normalized=</span><span class="ot">TRUE</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true"></a>topic.words &lt;-<span class="st"> </span><span class="kw">mallet.topic.words</span>(topic.model, <span class="dt">smoothed=</span><span class="ot">TRUE</span>, <span class="dt">normalized=</span><span class="ot">TRUE</span>)</span></code></pre></div>
+<ol style="list-style-type: decimal">
+<li>Load functions</li>
+<li>Load in new text files to classify</li>
+<li>Find compatible instances in model and new text</li>
+<li>Infer topics in new text</li>
+<li>Name topics based on top words</li>
+</ol>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true"></a><span class="kw">source</span>(<span class="st">&quot;mallet_functions.R&quot;</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true"></a>newtext&lt;-readtext<span class="op">::</span><span class="kw">readtext</span>(<span class="st">&quot;PDF_tests/*pdf&quot;</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true"></a>compat&lt;-<span class="kw">compatible_instances</span>(<span class="dt">ids =</span> newtext<span class="op">$</span>doc_id, newtext<span class="op">$</span>text, SDG.instances)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true"></a>Topics&lt;-<span class="kw">infer_topics</span>(<span class="kw">inferencer</span>(topic.model), compat)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true"></a>top1&lt;-<span class="kw">mallet.top.words</span>(topic.model, <span class="dt">word.weights =</span> topic.words[<span class="dv">1</span>,], <span class="dt">num.top.words =</span> <span class="dv">1</span>)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true"></a>top2&lt;-<span class="kw">mallet.top.words</span>(topic.model, <span class="dt">word.weights =</span> topic.words[<span class="dv">2</span>,], <span class="dt">num.top.words =</span> <span class="dv">1</span>)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true"></a>top3&lt;-<span class="kw">mallet.top.words</span>(topic.model, <span class="dt">word.weights =</span> topic.words[<span class="dv">3</span>,], <span class="dt">num.top.words =</span> <span class="dv">1</span>)</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true"></a>top4&lt;-<span class="kw">mallet.top.words</span>(topic.model, <span class="dt">word.weights =</span> topic.words[<span class="dv">4</span>,], <span class="dt">num.top.words =</span> <span class="dv">1</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true"></a>top5&lt;-<span class="kw">mallet.top.words</span>(topic.model, <span class="dt">word.weights =</span> topic.words[<span class="dv">5</span>,], <span class="dt">num.top.words =</span> <span class="dv">1</span>)</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true"></a>top6&lt;-<span class="kw">mallet.top.words</span>(topic.model, <span class="dt">word.weights =</span> topic.words[<span class="dv">6</span>,], <span class="dt">num.top.words =</span> <span class="dv">1</span>)</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true"></a>top7&lt;-<span class="kw">mallet.top.words</span>(topic.model, <span class="dt">word.weights =</span> topic.words[<span class="dv">7</span>,], <span class="dt">num.top.words =</span> <span class="dv">1</span>)</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true"></a>top8&lt;-<span class="kw">mallet.top.words</span>(topic.model, <span class="dt">word.weights =</span> topic.words[<span class="dv">8</span>,], <span class="dt">num.top.words =</span> <span class="dv">1</span>)</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true"></a>top9&lt;-<span class="kw">mallet.top.words</span>(topic.model, <span class="dt">word.weights =</span> topic.words[<span class="dv">9</span>,], <span class="dt">num.top.words =</span> <span class="dv">1</span>)</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true"></a>top10&lt;-<span class="kw">mallet.top.words</span>(topic.model, <span class="dt">word.weights =</span> topic.words[<span class="dv">10</span>,], <span class="dt">num.top.words =</span> <span class="dv">1</span>)</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true"></a>top11&lt;-<span class="kw">mallet.top.words</span>(topic.model, <span class="dt">word.weights =</span> topic.words[<span class="dv">11</span>,], <span class="dt">num.top.words =</span> <span class="dv">1</span>)</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true"></a>top12&lt;-<span class="kw">mallet.top.words</span>(topic.model, <span class="dt">word.weights =</span> topic.words[<span class="dv">12</span>,], <span class="dt">num.top.words =</span> <span class="dv">1</span>)</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true"></a>top13&lt;-<span class="kw">mallet.top.words</span>(topic.model, <span class="dt">word.weights =</span> topic.words[<span class="dv">13</span>,], <span class="dt">num.top.words =</span> <span class="dv">1</span>)</span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true"></a>top14&lt;-<span class="kw">mallet.top.words</span>(topic.model, <span class="dt">word.weights =</span> topic.words[<span class="dv">14</span>,], <span class="dt">num.top.words =</span> <span class="dv">1</span>)</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true"></a>top15&lt;-<span class="kw">mallet.top.words</span>(topic.model, <span class="dt">word.weights =</span> topic.words[<span class="dv">15</span>,], <span class="dt">num.top.words =</span> <span class="dv">1</span>)</span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true"></a>top16&lt;-<span class="kw">mallet.top.words</span>(topic.model, <span class="dt">word.weights =</span> topic.words[<span class="dv">16</span>,], <span class="dt">num.top.words =</span> <span class="dv">1</span>)</span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true"></a>top17&lt;-<span class="kw">mallet.top.words</span>(topic.model, <span class="dt">word.weights =</span> topic.words[<span class="dv">17</span>,], <span class="dt">num.top.words =</span> <span class="dv">1</span>)</span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true"></a>top18&lt;-<span class="kw">mallet.top.words</span>(topic.model, <span class="dt">word.weights =</span> topic.words[<span class="dv">18</span>,], <span class="dt">num.top.words =</span> <span class="dv">1</span>)</span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true"></a></span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true"></a>topw&lt;-<span class="kw">rbind</span>(top1, top2, top3, top4, top5, top6, top7, top8, top9, top10, top11, top12,</span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true"></a>            top13, top14, top15, top16, top17, top18)</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true"></a><span class="kw">rownames</span>(Topics)&lt;-newtext<span class="op">$</span>doc_id</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true"></a><span class="kw">colnames</span>(Topics)&lt;-topw<span class="op">$</span>words</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true"></a>Topics&lt;-<span class="kw">as.data.frame</span>(Topics)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true"></a><span class="co">#remove filter topic</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true"></a>Topics&lt;-Topics <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(poverty, food, health, education, women, water, energy, growth, manufacturing, income, urban, consumption, climate, marine, biodiversity, institutions, data )</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true"></a></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true"></a><span class="co">#need to rescale values so that row totals 1</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true"></a>mydata &lt;-<span class="st"> </span><span class="kw">apply</span>(Topics, <span class="dv">1</span>, <span class="cf">function</span>(Topics) Topics<span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(Topics, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true"></a>mydata &lt;-<span class="st"> </span><span class="kw">t</span>(mydata)</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true"></a>mydata&lt;-<span class="kw">as.data.frame</span>(mydata)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true"></a>SDGorder&lt;-<span class="kw">c</span>(<span class="st">&quot;poverty&quot;</span>, <span class="st">&quot;food&quot;</span>, <span class="st">&quot;health&quot;</span>, <span class="st">&quot;education&quot;</span>, <span class="st">&quot;women&quot;</span>, <span class="st">&quot;water&quot;</span>, <span class="st">&quot;energy&quot;</span>, <span class="st">&quot;growth&quot;</span>, <span class="st">&quot;manufacturing&quot;</span>, <span class="st">&quot;income&quot;</span>, <span class="st">&quot;urban&quot;</span>, <span class="st">&quot;consumption&quot;</span>, <span class="st">&quot;climate&quot;</span>, <span class="st">&quot;marine&quot;</span>, <span class="st">&quot;biodiversity&quot;</span>, <span class="st">&quot;institutions&quot;</span>, <span class="st">&quot;data&quot;</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true"></a>Finaltable&lt;-mydata[SDGorder]</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true"></a><span class="kw">colnames</span>(Finaltable)&lt;-<span class="kw">c</span>(<span class="st">&quot;No Poverty&quot;</span>, <span class="st">&quot;Zero Hunger&quot;</span>, <span class="st">&quot;Good Health&quot;</span>, <span class="st">&quot;Quality Education&quot;</span>, <span class="st">&quot;Gender Equality&quot;</span>, <span class="st">&quot;Clean Water&quot;</span>, <span class="st">&quot;Affordable Energy&quot;</span>, <span class="st">&quot;Decent Work&quot;</span>, <span class="st">&quot;Industry and Innovation&quot;</span>, <span class="st">&quot;Reduced Inequalities&quot;</span>, <span class="st">&quot;Sustainable Cities&quot;</span>, <span class="st">&quot;Responsible Consumption&quot;</span>, <span class="st">&quot;Climate Action&quot;</span>, <span class="st">&quot;Life Below Water&quot;</span>, <span class="st">&quot;Life on Land&quot;</span>, <span class="st">&quot;Peace and Justice&quot;</span>, <span class="st">&quot;Partnerships&quot;</span>)</span></code></pre></div>
+</div>
+<div id="mean-results-for-all-papers" class="section level2">
+<h2>Mean results for all papers</h2>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true"></a>colours&lt;-<span class="kw">read.csv</span>(<span class="st">&quot;SDGcolours.csv&quot;</span>)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true"></a>Mean.table&lt;-<span class="kw">colMeans</span>(Finaltable)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true"></a>Mean.table&lt;-<span class="kw">as.data.frame</span>(Mean.table)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true"></a>Mean.table&lt;-<span class="kw">t</span>(Mean.table)</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true"></a></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true"></a></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true"></a><span class="kw">library</span>(reshape2)</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true"></a><span class="kw">library</span>(ggplot2)</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true"></a>mean&lt;-<span class="kw">melt</span>(Mean.table)</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true"></a></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true"></a></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true"></a>each&lt;-<span class="kw">t</span>(Finaltable)</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true"></a>each&lt;-<span class="kw">melt</span>(each)</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true"></a></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true"></a></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true"></a><span class="kw">colnames</span>(each)&lt;-<span class="kw">c</span>(<span class="st">&quot;Goal&quot;</span>, <span class="st">&quot;ID&quot;</span>, <span class="st">&quot;Value&quot;</span>)</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true"></a><span class="kw">colnames</span>(mean)&lt;-<span class="kw">c</span>(<span class="st">&quot;ID&quot;</span>, <span class="st">&quot;Goal&quot;</span>, <span class="st">&quot;Value&quot;</span>)</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true"></a>mean<span class="op">$</span>ID&lt;-<span class="st">&quot;Mean&quot;</span></span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true"></a></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true"></a>all&lt;-<span class="kw">rbind</span>(each, mean)</span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true"></a></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true"></a>all<span class="op">$</span>colour&lt;-<span class="kw">rep</span>(colours<span class="op">$</span>Colour, <span class="dv">3</span>)</span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true"></a></span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true"></a>g&lt;-<span class="kw">ggplot</span>(all, <span class="kw">aes</span>(<span class="dt">y=</span>Value, <span class="dt">x=</span>ID)) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true"></a><span class="st">    </span><span class="kw">geom_col</span>(<span class="dt">stat=</span><span class="st">&quot;identity&quot;</span>, <span class="dt">fill=</span>all<span class="op">$</span>colour)<span class="op">+</span></span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true"></a><span class="st">    </span><span class="kw">coord_flip</span>()<span class="op">+</span></span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true"></a><span class="st">    </span><span class="kw">theme_classic</span>()<span class="op">+</span></span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true"></a><span class="st">    </span><span class="kw">xlab</span>(<span class="st">&quot;Mean SDGs&quot;</span>)<span class="op">+</span></span>
+<span id="cb26-29"><a href="#cb26-29" aria-hidden="true"></a><span class="st">    </span><span class="kw">ylab</span>(<span class="st">&quot;Proportion fit&quot;</span>)</span></code></pre></div>
+<pre><code>## Warning: Ignoring unknown parameters: stat</code></pre>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true"></a>g</span></code></pre></div>
+<p><img src="data:image/png;base64,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CURKgAIUKUHGJwEScE2AAuQaHSOSAAlESoACFClBxicBEnBNgALkGh0jkgAJREqAAhQpQcYnARJwTYAC5BodI5IACURKgAIUKUHGJwEScE2AAuQaHSOSAAlESoACFClBxicBEnBNgALkGh0jkgAJREqAAhQpQcYnARJwTYAC5BodI5IACURKgAIUKUHGJwEScE2AAuQaHSOSAAlESoACFClBxicBEnBNgALkGh0jkgAJREqAAhQpQcYnARJwTYAC5BodI5IACURKgAIUKUHGJwEScE2AAuQaHSOSAAlESoACFClBxicBEnBNgALkGh0jkgAJREqAAhQpQcYnARJwTYAC5BodI5IACURKIJvP7yJNhPFDE+jdu7ckJSVJSkpK6EC8QwIXKQHWgC7SF8/HJoGsQMCxAKWlpcnChQvlzJkzWu7XX39d7rrrLnn//fezwnOwDCRAAnFIwLEAPf/889KiRQvZu3evTJs2Tfr166eP27NnT/n444/j8NFZZBIggQtNwLEAvfPOO7JgwQIpV66cTJkyRZo3by7z5s2TQYMGyYwZMy70czB/EiCBOCTgSIAOHz4sx48flwYNGkhqaqp89dVX0qZNG33cihUrysGDB+Pw0VlkEiCBC00gh5MCFCpUSPLmzSsrV67UJhj6gZo2bSrnzp3T5lfDhg2dJMMwJEACJBBAwJEAZcuWTdAHdMcddwg6o3v06CElSpSQ1q1by+rVq6Vv374BifIifALJuauFHynKMU6PjnKCluS6n02zXMXPad9eqVrY28uf9qzQ14xani6vbvd0TOcXyqNby/2Sra5InZ3FQwXJ1D8l30QNU7v+/7d0MoqwbmAt2f9dZN0vjgQImaPT+c4775TTp09LrVq1tDy9evXS83z58mVUPvqRAAmQgC0BRwK0f/9+bYJdf/31MnPmTPniiy/MRIsVKyZVq1Y1r3lCAiRAAk4JZCpAaHqNHDlSPvroI2nXrp0OwaMTunDhwnLs2DEdGfvmm28EzTQ6EiABEgiHgO0oGOb7DB8+XDAEj0mHcBCaRx99VLZv3y6rVq2SdevWySeffBJOngxLAiRAAkrAVoAmTJggzz33nDz44IOSI0f6ylKVKlW0X2jJkiXESQIkQAJhE7AVoB9//FEaN24ckOill14quXLlMv1q1qwpCEdHAiRAAuESSF+tsaSA0a3z589b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" /><!-- --></p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

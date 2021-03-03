@@ -1,0 +1,204 @@
+---
+title: "SDG Classification"
+author: "Simone Mordue"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+
+---
+
+## Installation
+
+The ```mallet``` R package is available on CRAN. To install, simply use ```install.packages()```
+
+```{r, eval=FALSE}
+install.packages("mallet")
+install.packages("pdftools")
+library(pdftools)
+```
+
+## Usage
+
+Depending of the size of your data it can be so that you need increase the Java virtual machine (JVM) heap memory to handle larger corpora. To do this you need specify how much memory you want to allocate to the JVM using the ```Xmx``` flag. Below is an example of allocating 4 gB to the JVM. 
+
+```{r, eval=FALSE}
+options(java.parameters = "-Xmx4g")
+```
+
+load packages.
+
+```{r}
+library(mallet)
+library(vroom)
+library(dplyr)
+```
+
+
+
+We start out loading SDG reference texts one per SDG.
+
+```{r}
+print(getwd())
+text<-readtext::readtext("project_sim/SDG_texts/*.txt")
+```
+
+Load stopword list
+
+```{r}
+stopwords_en <- read.table("project_sim/stopwords.txt")
+```
+
+As a first step we need to create a LDA trainer object and supply the trainer with documents. We start out by creating a mallet instance list object. 
+
+This function has a few extra options (whether to lowercase, how we define a token). See ```?mallet.import``` for details.
+
+```{r}
+SDG.instances <- 
+  mallet.import(id.array = row.names(text), 
+                text.array = text[["text"]], 
+                stoplist = "project_sim/stopwords.txt",
+                token.regexp = "\\p{L}[\\p{L}\\p{P}]+\\p{L}")
+```
+
+To fit a model we first need to create a topic trainer object, we specifiy the number of topics to be the number of SDGS (17) plus a filter topic = 18 total.
+
+```{r}
+topic.model <- MalletLDA(num.topics=18, alpha.sum = 1, beta = 0.1)
+topic.model$model$setRandomSeed(42L)
+```
+
+Load our documents into the model
+
+```{r}
+topic.model$loadDocuments(SDG.instances)
+```
+
+Get the vocabulary, and some statistics about word frequencies. These may be useful if we need to further curating the stopword list.
+
+```{r}
+vocabulary <- topic.model$getVocabulary()
+head(vocabulary)
+
+word.freqs <- mallet.word.freqs(topic.model)
+head(word.freqs)
+```
+
+Optimize hyperparameters (\code{alpha} and \code{beta}) every 20 iterations, after 50 burn-in iterations.
+
+```{r}
+topic.model$setAlphaOptimization(20, 500)
+```
+
+Now train a model. Note that hyperparameter optimization is on, by default. We can specify the number of iterations. Here we'll use a large-ish round number.
+
+```{r echo=FALSE, message=FALSE, error=FALSE}
+topic.model$train(20000)
+```
+
+We can also run through a few iterations where we pick the best topic for each token, rather than sampling from the posterior distribution.
+
+```{r}
+#topic.model$maximize(10)
+```
+
+Get the probability of topics in documents and the probability of words in topics. By default, these functions return raw word counts. Here we want probabilities, so we normalize, and add "smoothing" so that nothing has exactly 0 probability.
+
+```{r}
+doc.topics <- mallet.doc.topics(topic.model, smoothed=TRUE, normalized=TRUE)
+topic.words <- mallet.topic.words(topic.model, smoothed=TRUE, normalized=TRUE)
+```
+
+1. Load functions 
+2. Load in new text files to classify
+3. Find compatible instances in model and new text
+4. Infer topics in new text
+5. Name topics based on top words
+
+
+```{r}
+source("mallet_functions.R")
+newtext<-readtext::readtext("PDF_tests/*pdf")
+compat<-compatible_instances(ids = newtext$doc_id, newtext$text, SDG.instances)
+Topics<-infer_topics(inferencer(topic.model), compat)
+top1<-mallet.top.words(topic.model, word.weights = topic.words[1,], num.top.words = 1)
+top2<-mallet.top.words(topic.model, word.weights = topic.words[2,], num.top.words = 1)
+top3<-mallet.top.words(topic.model, word.weights = topic.words[3,], num.top.words = 1)
+top4<-mallet.top.words(topic.model, word.weights = topic.words[4,], num.top.words = 1)
+top5<-mallet.top.words(topic.model, word.weights = topic.words[5,], num.top.words = 1)
+top6<-mallet.top.words(topic.model, word.weights = topic.words[6,], num.top.words = 1)
+top7<-mallet.top.words(topic.model, word.weights = topic.words[7,], num.top.words = 1)
+top8<-mallet.top.words(topic.model, word.weights = topic.words[8,], num.top.words = 1)
+top9<-mallet.top.words(topic.model, word.weights = topic.words[9,], num.top.words = 1)
+top10<-mallet.top.words(topic.model, word.weights = topic.words[10,], num.top.words = 1)
+top11<-mallet.top.words(topic.model, word.weights = topic.words[11,], num.top.words = 1)
+top12<-mallet.top.words(topic.model, word.weights = topic.words[12,], num.top.words = 1)
+top13<-mallet.top.words(topic.model, word.weights = topic.words[13,], num.top.words = 1)
+top14<-mallet.top.words(topic.model, word.weights = topic.words[14,], num.top.words = 1)
+top15<-mallet.top.words(topic.model, word.weights = topic.words[15,], num.top.words = 1)
+top16<-mallet.top.words(topic.model, word.weights = topic.words[16,], num.top.words = 1)
+top17<-mallet.top.words(topic.model, word.weights = topic.words[17,], num.top.words = 1)
+top18<-mallet.top.words(topic.model, word.weights = topic.words[18,], num.top.words = 1)
+
+topw<-rbind(top1, top2, top3, top4, top5, top6, top7, top8, top9, top10, top11, top12,
+            top13, top14, top15, top16, top17, top18)
+```
+
+```{r}
+rownames(Topics)<-newtext$doc_id
+colnames(Topics)<-topw$words
+Topics<-as.data.frame(Topics)
+
+#remove filter topic
+Topics<-Topics %>% select(poverty, food, health, education, women, water, energy, growth, manufacturing, income, urban, consumption, climate, marine, biodiversity, institutions, data )
+
+#need to rescale values so that row totals 1
+mydata <- apply(Topics, 1, function(Topics) Topics/ sum(Topics, na.rm = TRUE))
+mydata <- t(mydata)
+mydata<-as.data.frame(mydata)
+```
+
+```{r}
+SDGorder<-c("poverty", "food", "health", "education", "women", "water", "energy", "growth", "manufacturing", "income", "urban", "consumption", "climate", "marine", "biodiversity", "institutions", "data")
+
+Finaltable<-mydata[SDGorder]
+
+colnames(Finaltable)<-c("No Poverty", "Zero Hunger", "Good Health", "Quality Education", "Gender Equality", "Clean Water", "Affordable Energy", "Decent Work", "Industry and Innovation", "Reduced Inequalities", "Sustainable Cities", "Responsible Consumption", "Climate Action", "Life Below Water", "Life on Land", "Peace and Justice", "Partnerships")
+
+```
+## Mean results for all papers 
+```{r}
+colours<-read.csv("SDGcolours.csv")
+Mean.table<-colMeans(Finaltable)
+Mean.table<-as.data.frame(Mean.table)
+Mean.table<-t(Mean.table)
+
+
+library(reshape2)
+library(ggplot2)
+mean<-melt(Mean.table)
+
+
+each<-t(Finaltable)
+each<-melt(each)
+
+
+colnames(each)<-c("Goal", "ID", "Value")
+colnames(mean)<-c("ID", "Goal", "Value")
+mean$ID<-"Mean"
+
+all<-rbind(each, mean)
+
+all$colour<-rep(colours$Colour, 3)
+
+g<-ggplot(all, aes(y=Value, x=ID)) + 
+    geom_col(stat="identity", fill=all$colour)+
+    coord_flip()+
+    theme_classic()+
+    xlab("Mean SDGs")+
+    ylab("Proportion fit")
+
+
+g
+```
+
+
+

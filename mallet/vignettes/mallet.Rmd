@@ -37,6 +37,7 @@ We start out by using the example data set of the State of the Union adresses fr
 
 ```{r}
 library(dplyr)
+load("~/OneDrive - Newcastle University/RMallet/mallet/data/sotu.rda")
 data(sotu)
 sotu[["text"]][1:2]
 ```
@@ -45,7 +46,7 @@ Mallet comes with five different stop list files.
 
 ```{r}
 dir(system.file("stoplists/", package = "mallet"))
-stopwords_en <- system.file("stoplists/en.txt", package = "mallet")
+stopwords_en <- system.file("/project_sim/mallet/stoplists/en.txt", package = "mallet")
 ```
 
 As a first step we need to create a LDA trainer object and supply the trainer with documents. We start out by creating a mallet instance list object. 
@@ -56,15 +57,15 @@ This function has a few extra options (whether to lowercase, how we define a tok
 sotu.instances <- 
   mallet.import(id.array = row.names(sotu), 
                 text.array = sotu[["text"]], 
-                stoplist = stopwords_en,
+                stoplist = "mallet/inst/stoplists/en.txt",
                 token.regexp = "\\p{L}[\\p{L}\\p{P}]+\\p{L}")
 ```
 
 If the data is already cleaned and we just want to use the index of `text.array` we can simply just supply the `text.array`.
 
 ```{r}
-sotu.instances.short <- 
-  mallet.import(text.array = sotu[["text"]])
+#sotu.instances.short <- 
+ # mallet.import(text.array = sotu[["text"]])
 ```
 
 It is also possible to supply stop words as a character vector. 
