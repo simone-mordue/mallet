@@ -1,0 +1,95 @@
+---
+title: "SDG Classification Marcelo Model"
+author: "Simone Mordue"
+date: "04/03/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(root.dir = "/Users/simonemordue/SDG/mallet")
+```
+
+## Run Model on training text
+1. Read in PDF_tests convert to .txt
+2. Write text 
+3. Run shell script to infer SDG scores
+
+```{r}
+setwd("/Users/simonemordue/SDG/mallet")
+newtext<-readtext::readtext("PDF_tests/*pdf")
+write.table(newtext$text[1], "SDGclassy-master/project-simone/full_texts_test/test1.txt")
+write.table(newtext$text[2], "SDGclassy-master/project-simone/full_texts_test/test2.txt")
+library(processx)
+library(dplyr)
+run("SDGclassy-master/scripts/infer-scores_March.sh")
+```
+
+## Modify and display results
+
+
+```{r}
+setwd("/Users/simonemordue/SDG/mallet")
+output<-read.table("SDGclassy-master/project-simone/output/scores-full_texts_test-cl_base_new.txt")
+output<-output[,2:20]
+
+
+colnames(output)<-c("ID", "Zero Hunger", "Partnerships", "Decent Work", "No Poverty",
+                    "Clean Water", "Peace and Justice", "Industry and Innovation",
+                    "Sustainable Cities", "Life on Land", "Quality Education",
+                    "Climate Action", "Gender Equality", "Responsible Consumption",
+                    "Good Health", "Affordable Energy", "Filter", "Reduced Inequalities",
+                    "Life Below Water")
+output<-output %>% select("ID", "Zero Hunger", "Partnerships", "Decent Work", "No Poverty",
+                    "Clean Water", "Peace and Justice", "Industry and Innovation",
+                    "Sustainable Cities", "Life on Land", "Quality Education",
+                    "Climate Action", "Gender Equality", "Responsible Consumption",
+                    "Good Health", "Affordable Energy", "Reduced Inequalities",
+                    "Life Below Water")
+rownames(output)<-c("text1", "text2")
+output<-output[,2:18]
+
+data <- apply(output, 1, function(output) output/ sum(output, na.rm = TRUE))
+data <- t(data)
+data<-as.data.frame(data)
+
+SDGorder<-c("No Poverty","Zero Hunger", "Good Health","Quality Education", "Gender Equality","Clean Water", "Affordable Energy", "Decent Work", "Industry and Innovation",
+            "Reduced Inequalities","Sustainable Cities", "Responsible Consumption", 
+            "Climate Action", "Life Below Water", "Life on Land","Peace and Justice",
+            "Partnerships")
+
+Finaltable<-data[SDGorder]
+
+colours<-read.csv("SDGcolours.csv")
+Mean.table<-colMeans(Finaltable)
+Mean.table<-as.data.frame(Mean.table)
+Mean.table<-t(Mean.table)
+
+
+library(reshape2)
+library(ggplot2)
+mean<-melt(Mean.table)
+
+
+each<-t(Finaltable)
+each<-melt(each)
+
+colnames(each)<-c("Goal", "ID", "Value")
+colnames(mean)<-c("ID", "Goal", "Value")
+mean$ID<-"Mean"
+
+all<-rbind(each, mean)
+
+all$colour<-rep(colours$Colour, 3)
+
+g<-ggplot(all, aes(y=Value, x=ID)) + 
+    geom_col(stat="identity", fill=all$colour)+
+    coord_flip()+
+    theme_classic()+
+    xlab("Mean SDGs")+
+    ylab("Proportion fit")
+
+
+g
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
