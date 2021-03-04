@@ -1,5 +1,8 @@
 This is a test to run an SDG classifier using Mallet 
-Go to SDGclassy-master for Marcelo's model
+
+Use Infer-SDG_scores.Rmd for Marcelo's LDA model
+
+To try additional .pdf files - save them into PDF_tests folder
 
 
 

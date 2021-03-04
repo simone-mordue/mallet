@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(root.dir = "/Users/simonemordue/SDG/mallet")
+knitr::opts_chunk$set
 ```
 
 ## Run Model on training text
@@ -15,7 +15,7 @@ knitr::opts_chunk$set(root.dir = "/Users/simonemordue/SDG/mallet")
 3. Run shell script to infer SDG scores
 
 ```{r}
-setwd("/Users/simonemordue/SDG/mallet")
+getwd()
 newtext<-readtext::readtext("PDF_tests/*pdf")
 write.table(newtext$text[1], "SDGclassy-master/project-simone/full_texts_test/test1.txt")
 write.table(newtext$text[2], "SDGclassy-master/project-simone/full_texts_test/test2.txt")
@@ -28,7 +28,7 @@ run("SDGclassy-master/scripts/infer-scores_March.sh")
 
 
 ```{r}
-setwd("/Users/simonemordue/SDG/mallet")
+
 output<-read.table("SDGclassy-master/project-simone/output/scores-full_texts_test-cl_base_new.txt")
 output<-output[,2:20]
 
