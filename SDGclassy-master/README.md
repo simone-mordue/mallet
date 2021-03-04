@@ -1,5 +1,5 @@
 # SDGclassy
 SDG classification of texts using LDA topic model 
 
-# Go to Scripts - infer-scores.Rmd
+# Example of how to run can be found in scripts - infer_scores.Rmd
 
